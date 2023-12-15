@@ -24,7 +24,7 @@ function injectRenderButton(codeBlockContainer) {
         // Add event listener for the "Render" button
         renderButton.addEventListener('click', function() {
             let htmlCode = codeBlockContainer.querySelector('code').textContent;
-            chrome.runtime.sendMessage({ action: "open_new_window", htmlCode: htmlCode });
+            renderHtmlContent(codeBlockContainer, htmlCode);
         });
 
         // Add the "Render" button to the new container
@@ -34,6 +34,30 @@ function injectRenderButton(codeBlockContainer) {
         headerDiv.appendChild(buttonsContainer);
     }
 }
+
+function renderHtmlContent(codeBlockContainer, htmlCode) {
+    // Check if the rendered container already exists, and if so, remove it
+    let existingRenderedContainer = codeBlockContainer.nextElementSibling;
+    if (existingRenderedContainer && existingRenderedContainer.classList.contains('rendered-html-container')) {
+        existingRenderedContainer.remove();
+    }
+
+    // Create a new container for the rendered HTML
+    let renderedContainer = document.createElement('div');
+    renderedContainer.className = 'rendered-html-container';
+    renderedContainer.style.cssText = 'border: 1px solid #ddd; padding: 10px; margin-top: 10px; background-color: white;';
+
+    // Use a sandbox iframe to isolate the HTML content
+    let iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width: 100%; height: 300px; border: none;'; // Adjust height as needed
+    iframe.srcdoc = htmlCode; // You might want to sanitize this HTML
+
+    renderedContainer.appendChild(iframe);
+
+    // Insert the rendered container after the code block container
+    codeBlockContainer.parentNode.insertBefore(renderedContainer, codeBlockContainer.nextSibling);
+}
+
 
 // Function to process added nodes
 function processAddedNodes(addedNodes) {
