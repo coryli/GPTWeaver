@@ -67,7 +67,7 @@ function renderHtmlContent(codeBlockContainer, htmlCode) {
     console.log("Render html content");
 
     // Remove the Zero Width Character from the HTML code
-    htmlCode = htmlCode.replace(/\u200B$/, '');
+    htmlCode = htmlCode.replace('#*#*#', '');
     
     // Check if the rendered container already exists, and if so, remove it
     let existingRenderedContainer = codeBlockContainer.nextElementSibling;
@@ -116,30 +116,48 @@ function decodeHtmlEntities(text) {
 }
 // MutationObserver callback
 function mutationCallback(mutationsList) {
-    console.log("Mutation callback"); // Console log for debugging
     for (let mutation of mutationsList) {
         if (mutation.type === 'childList') {
             mutation.addedNodes.forEach(node => {
+                // Check if the node itself matches the selector
                 if (node.matches && node.matches('pre .bg-black')) {
-                    processCodeBlockForRendering(node);
+                    injectButtons(node);
+                }
+
+                // Check for and process any matching child nodes
+                if (node.querySelectorAll) {
+                    node.querySelectorAll('pre .bg-black').forEach(subNode => {
+                        injectButtons(subNode);
+                    });
                 }
             });
+
+            // Call the debounced function for rendering
+            debouncedProcessCodeBlocks();
         }
     }
 }
 
-function monitorCodeBlocks() {
-    document.querySelectorAll('pre .bg-black').forEach((codeBlockContainer) => {
-        injectButtons(codeBlockContainer);
+const debouncedProcessCodeBlocks = debounce(() => {
+    document.querySelectorAll('pre .bg-black').forEach(codeBlockContainer => {
         processCodeBlockForRendering(codeBlockContainer);
     });
+}, 500); // Adjust the time as needed
+
+function debounce(func, wait) {
+    let timeout;
+
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
 // Set up the MutationObserver
 const observer = new MutationObserver(mutationCallback);
 observer.observe(document.body, { childList: true, subtree: true });
-
-// Initial processing and monitoring of code blocks
-setTimeout(() => {
-    monitorCodeBlocks();
-}, 1000); // Delay set to 1 second

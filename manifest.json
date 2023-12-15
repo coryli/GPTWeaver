@@ -2,9 +2,6 @@
     "manifest_version": 3,
     "name": "HTML Renderer",
     "version": "1.0",
-    "action": {
-      "default_popup": "popup.html"
-    },
     "permissions": ["activeTab", "scripting"],
     "content_scripts": [
         {
