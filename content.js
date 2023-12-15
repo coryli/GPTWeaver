@@ -65,9 +65,6 @@ function getSvgIcon(state) {
 function renderHtmlContent(codeBlockContainer, htmlCode) {
 
     console.log("Render html content");
-
-    // Remove the Zero Width Character from the HTML code
-    htmlCode = htmlCode.replace('#*#*#', '');
     
     // Check if the rendered container already exists, and if so, remove it
     let existingRenderedContainer = codeBlockContainer.nextElementSibling;
@@ -82,9 +79,9 @@ function renderHtmlContent(codeBlockContainer, htmlCode) {
     
     // Use a sandbox iframe to isolate the HTML content
     let iframe = document.createElement('iframe');
-    iframe.style.cssText = 'width: 100%; height: 300px; border: none;'; // Adjust height as needed
+    iframe.style.cssText = 'width: 100%; height: 500px; border: none;'; // Adjust height as needed
     iframe.srcdoc = htmlCode; // You might want to sanitize this HTML
-    
+
     renderedContainer.appendChild(iframe);
     
     // Insert the rendered container after the code block container
@@ -96,9 +93,9 @@ function processCodeBlockForRendering(codeBlockContainer) {
     let codeContent = codeBlockContainer.querySelector('code');
     console.log(codeContent);
     // Check for double return line as separator
-    if (codeContent.textContent.includes('#*#*#')) {
+    if (codeContent.textContent.includes('</html>')) {
         // Split the content at the first occurrence of double return line
-        let parts = codeContent.textContent.split('#*#*#');
+        let parts = codeContent.textContent.split('</html>');
         let htmlCodeToRender = parts[0]; // Use the content before the separator for rendering
 
         renderHtmlContent(codeBlockContainer, htmlCodeToRender);
