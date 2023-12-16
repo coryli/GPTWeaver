@@ -2,14 +2,27 @@
     "manifest_version": 3,
     "name": "HTML Renderer",
     "version": "1.0",
-    "permissions": ["activeTab", "scripting"],
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ],
     "content_scripts": [
         {
-          "matches": ["https://chat.openai.com/*"],
-          "js": ["content.js"]
+            "matches": [
+                "https://chat.openai.com/*"
+            ],
+            "js": [
+                "content.js"
+            ]
         }
-      ],
-      "background": {
+    ],
+    "background": {
         "service_worker": "background.js"
-      }
-  }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": ["sandbox.html"],
+            "matches": ["<all_urls>"]
+        }
+    ]
+}

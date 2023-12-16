@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sandbox</title>
+</head>
+
+<body>
+    <script>
+        window.addEventListener('message', (event) => {
+            // Security check: Ensure the message is from a trusted origin
+            if (event.origin !== window.location.origin) return;
+
+            const data = event.data;
+
+            console.log("This is the sandbox. Received message:", event.data);
+            
+            // Process the received message
+            // Depending on the structure of 'data', execute the necessary operations
+            // For example, if 'data' contains JavaScript code to be executed:
+            if (data.action === 'executeScript' && data.script) {
+                try {
+                    eval(data.script);
+                } catch (error) {
+                    console.error('Error executing script in sandbox:', error);
+                }
+            }
+
+            // Add more cases as needed to handle different types of messages
+        });
+
+        // Assuming you receive or generate messages/actions to be sent to the main page
+        function sendUpdateMessage(dynamicId, payload) {
+            window.parent.postMessage({ dynamicId, action: 'updateElement', payload }, '*');
+        }
+    </script>
+</body>
+
+</html>
