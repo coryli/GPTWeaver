@@ -13,11 +13,17 @@ function injectButtons(codeBlockContainer) {
         headerDiv.appendChild(buttonsContainer);
     }
     
-    // Move the existing "Copy code" button into the new container
-    let copyCodeButton = headerDiv.querySelector('button');
-    if (copyCodeButton) {
-        buttonsContainer.appendChild(copyCodeButton);
-    }
+     // Find and override the "Copy code" button
+     let copyCodeButton = headerDiv.querySelector('button');
+     if (copyCodeButton) {
+         buttonsContainer.appendChild(copyCodeButton);
+ 
+         // Override the click event of the "Copy code" button
+         copyCodeButton.addEventListener('click', function(event) {
+             event.preventDefault(); // Prevent the default action
+             copyCodeToClipboard(codeBlockContainer); // Implement your custom copy logic
+         }, true); // Use capture phase to ensure this runs before the original event
+     }
     
     // Create and append the "Reduce" button with SVG icon
     let reduceButton = document.createElement('button');
@@ -35,6 +41,14 @@ function injectButtons(codeBlockContainer) {
     codeContent.style.display = 'none';
     
     headerDiv.appendChild(buttonsContainer);
+}
+
+// Custom function to copy code to clipboard
+function copyCodeToClipboard(codeBlockContainer) {
+    const codeContent = codeBlockContainer.querySelector('code').textContent;
+    navigator.clipboard.writeText(codeContent)
+        .then(() => console.log("Code copied to clipboard!"))
+        .catch(err => console.error("Failed to copy code: ", err));
 }
 
 function toggleCodeBlockVisibility(codeBlockContainer, reduceButton) {
@@ -65,22 +79,40 @@ function getSvgIcon(state) {
 function renderHtmlContent(codeBlockContainer, htmlCode) {
 
     console.log("Render html content");
-    
+    // Extract JavaScript code from the HTML code
+    // Assuming JavaScript is enclosed within <script> tags
+    const scriptRegex = /<script>(.*?)<\/script>/gs;
+    let scriptContent = "";
+    let match;
+    while ((match = scriptRegex.exec(htmlCode)) !== null) {
+        scriptContent += match[1];
+    }
+
+    // Remove the script tags from the HTML code
+    htmlCode = htmlCode.replace(scriptRegex, "");
+
+    // Create a new Blob with HTML and JavaScript
+    const blobContent = new Blob([htmlCode + `<script>${scriptContent}</script>`], {type: 'text/html'});
+
+    // Create a new URL for the Blob
+    const blobUrl = URL.createObjectURL(blobContent);
+
     // Check if the rendered container already exists, and if so, remove it
     let existingRenderedContainer = codeBlockContainer.nextElementSibling;
     if (existingRenderedContainer && existingRenderedContainer.classList.contains('rendered-html-container')) {
         existingRenderedContainer.remove();
     }
     
+    // Use a sandbox iframe to isolate the HTML content
+    let iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width: 100%; height: 500px; border: none;'; // Adjust height as needed
+    iframe.src = blobUrl; // You might want to sanitize this HTML
+    
     // Create a new container for the rendered HTML
     let renderedContainer = document.createElement('div');
     renderedContainer.className = 'rendered-html-container';
     renderedContainer.style.cssText = 'border: 1px solid #ddd; padding: 10px; margin-top: 10px; background-color: white;';
     
-    // Use a sandbox iframe to isolate the HTML content
-    let iframe = document.createElement('iframe');
-    iframe.style.cssText = 'width: 100%; height: 500px; border: none;'; // Adjust height as needed
-    iframe.srcdoc = htmlCode; // You might want to sanitize this HTML
 
     renderedContainer.appendChild(iframe);
     
@@ -100,7 +132,6 @@ function processCodeBlockForRendering(codeBlockContainer) {
 
         renderHtmlContent(codeBlockContainer, htmlCodeToRender);
 
-        // Optionally, remove the part after the separator from the displayed code
         codeContent.textContent = parts[0];
     }
 
