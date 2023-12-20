@@ -20,18 +20,6 @@ function injectButtons(codeBlockContainer) {
     codeContent.style.display = 'none';
 }
 
-// Custom function to copy code to clipboard
-function copyCodeToClipboard(codeBlockContainer) {
-    try {
-        const codeContent = codeBlockContainer.querySelector('code').textContent;
-        navigator.clipboard.writeText(codeContent)
-        .then(() => console.log("Code copied to clipboard!"))
-        .catch(err => console.error("Failed to copy code: ", err));
-    } catch (error) {
-        console.error('Error copying code: ', error);
-    }
-}
-
 function toggleCodeBlockVisibility(codeBlockContainer, reduceButton) {
     let codeContent = codeBlockContainer.querySelector('code');
     if (codeContent.style.display === 'none') {
@@ -133,7 +121,6 @@ function mutationCallback(mutationsList) {
         }
     });
 }
-
 
 const debouncedProcessCodeBlocks = debounce(() => {
     document.querySelectorAll('pre .bg-black').forEach(codeBlockContainer => {
