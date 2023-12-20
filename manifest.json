@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "HTML Renderer",
+    "name": "GPTWeaver",
     "version": "1.0",
     "permissions": [
         "activeTab",
@@ -16,9 +16,6 @@
             ]
         }
     ],
-    "background": {
-        "service_worker": "background.js"
-    },
     "web_accessible_resources": [
         {
             "resources": ["sandbox.html"],
